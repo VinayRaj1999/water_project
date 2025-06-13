@@ -20,8 +20,9 @@ RUN apt-get install -y --no-install-recommends \
     libharfbuzz-dev \
     libfribidi-dev \ 
     libtiff-dev \
-    libabseil-dev \ 
     cmake \ 
+    g ++ \
+    make \
     && rm -rf /var/lib/apt/lists/*
 
 # Install renv
