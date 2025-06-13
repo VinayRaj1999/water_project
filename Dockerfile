@@ -9,6 +9,10 @@ RUN apt-get update && apt-get install -y \
     libgdal-dev \
     libudunits2-dev \
     pandoc \
+    libv8-dev \
+    libjavascriptcoregtk-4.0-dev \ 
+    libfontconfig1-dev \
+    libcairo2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install renv
