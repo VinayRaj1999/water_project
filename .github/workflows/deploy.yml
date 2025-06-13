@@ -36,7 +36,7 @@ jobs:
           chmod 600 /tmp/ssh_private_key
 
           # Deploy using SSH
-          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_private_key -p ${{ secrets.SERVER_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} '
+          ssh -v -o StrictHostKeyChecking=no -i /tmp/ssh_private_key -p ${{ secrets.SERVER_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} /bin/bash << 'EOF' > ssh_output.log 2>&1
             # Log in to Docker Hub
             docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
 
@@ -55,7 +55,8 @@ jobs:
               --name vinay-proj \
               -p 8080:8080 \
               ${{ secrets.DOCKER_USERNAME }}/ground-water:v1
-          '
+          EOF
+          cat ssh_output.log
 
       - name: Remove SSH key
         if: always()
