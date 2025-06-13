@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     libjavascriptcoregtk-4.0-dev \ 
     libfontconfig1-dev \
     libcairo2-dev \
-    libgeos-dev 
+    libgeos-dev \
     libproj-dev \
     libharfbuzz-dev \
     libfribidi-dev \ 
