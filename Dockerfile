@@ -1,7 +1,9 @@
 FROM rocker/r-ver:4.4.1
 
+RUN apt-get update -y && apt-get upgrade -y
+
 # Install system dependencies for R packages
-RUN apt-get update && apt-get install -y \
+RUN apt-get install -y --no-install-recommends \
     libcurl4-openssl-dev \
     libssl-dev \
     libxml2-dev \
@@ -10,14 +12,14 @@ RUN apt-get update && apt-get install -y \
     libudunits2-dev \
     pandoc \
     libv8-dev \
-    libjavascriptcoregtk-4.0-dev \ 
+    libjavascriptcoregtk-4.1-dev \ 
     libfontconfig1-dev \
     libcairo2-dev \
     libgeos-dev \
     libproj-dev \
     libharfbuzz-dev \
     libfribidi-dev \ 
-    libtiff5-dev \
+    libtiff-dev \
     libabseil-dev \ 
     cmake \ 
     && rm -rf /var/lib/apt/lists/*
