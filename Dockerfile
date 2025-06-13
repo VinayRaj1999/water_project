@@ -21,7 +21,7 @@ RUN apt-get install -y --no-install-recommends \
     libfribidi-dev \ 
     libtiff-dev \
     cmake \ 
-    g ++ \
+    g++ \
     make \
     && rm -rf /var/lib/apt/lists/*
 
