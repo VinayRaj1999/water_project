@@ -27,7 +27,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: vinay0929/ground-water:v1
+          tags: ${{ secrets.DOCKER_USERNAME }}/ground-water:v1
 
       - name: Deploy to Server via SSH
         run: |
@@ -47,14 +47,14 @@ jobs:
             fi
 
             # Pull the latest Docker image
-            docker pull vinay0929/ground-water:v1
+            docker pull ${{ secrets.DOCKER_USERNAME }}/ground-water:v1
 
             # Run the container
             docker run -d \
               --restart=unless-stopped \
               --name vinay-proj \
               -p 8080:8080 \
-              vinay0929/ground-water:v1
+              ${{ secrets.DOCKER_USERNAME }}/ground-water:v1
           '
 
       - name: Remove SSH key
