@@ -18,6 +18,8 @@ RUN apt-get update && apt-get install -y \
     libharfbuzz-dev \
     libfribidi-dev \ 
     libtiff5-dev \
+    libabseil-dev \ 
+    cmake \ 
     && rm -rf /var/lib/apt/lists/*
 
 # Install renv
