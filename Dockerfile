@@ -25,7 +25,7 @@ COPY Ground_water_project.R .
 RUN R -e "renv::restore()"
 
 # Expose port for Shiny app
-EXPOSE 3002
+EXPOSE 3838
 
 # Run Shiny app
-CMD ["R", "-e", "shiny::runApp('/app/Ground_water_project.R', host='0.0.0.0', port=3002)"]
+CMD ["R", "-e", "shiny::runApp('/app/Ground_water_project.R', host='0.0.0.0', port=3838)"]
