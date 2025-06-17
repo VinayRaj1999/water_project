@@ -27,7 +27,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/ground-water:v1
+          tags: vinay0929/ground-water:v1
       
       - name: Deploy to Server via SSH
         run: |
@@ -39,7 +39,7 @@ jobs:
           if [ ! -s /tmp/ssh_private_key ]; then echo "Error: SSH private key file is empty"; exit 1; fi
 
           # Deploy using SSH
-          ssh -v -o StrictHostKeyChecking=no -i /tmp/ssh_private_key -p "${{ secrets.SERVER_PORT }}" "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }}" /bin/bash << 'EOF' > ssh_output.log 2>&1
+          ssh -o StrictHostKeyChecking=no -i /tmp/ssh_private_key -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }} '
             # Log in to Docker Hub
             docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
 
@@ -50,16 +50,15 @@ jobs:
             fi
 
             # Pull the latest Docker image
-            docker pull "${{ secrets.DOCKER_USERNAME }}/ground-water:v1"
+            docker pull vinay0929/ground-water:v1
 
             # Run the container
             docker run -d \
               --restart=unless-stopped \
               --name vinay-proj \
               -p 8080:8080 \
-              "${{ secrets.DOCKER_USERNAME }}/ground-water:v1"
-          EOF
-          cat ssh_output.log
+              vinay0929/ground-water:v1
+          '
 
       - name: Remove SSH key
         if: always()
