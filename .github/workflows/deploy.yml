@@ -56,7 +56,7 @@ jobs:
             docker run -d \
               --restart=unless-stopped \
               --name vinay-proj \
-              -p 8080:8080 \
+              -p 8085:3838 \
               vinay0929/ground-water:v1
           '
 
