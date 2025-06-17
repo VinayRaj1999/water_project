@@ -28,7 +28,17 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/ground-water:v1
-
+      
+      - name: Check SSH and Docker secrets
+        run: |
+          if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then echo "Error: DOCKER_USERNAME is empty"; exit 1; fi
+          if [ -z "${{ secrets.DOCKER_PASSWORD }}" ]; then echo "Error: DOCKER_PASSWORD is empty"; exit 1; fi
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then echo "Error: SSH_PRIVATE_KEY is empty"; exit 1; fi
+          if [ -z "${{ secrets.SERVER_USERNAME }}" ]; then echo "Error: SERVER_USERNAME is empty"; exit 1; fi
+          if [ -z "${{ secrets.SERVER_IP }}" ]; then echo "Error: SERVER_IP is empty"; exit 1; fi
+          if [ -z "${{ secrets.SERVER_PORT }}" ]; then echo "Error: SERVER_PORT is empty"; exit 1; fi
+          echo "All secrets are set"
+      
       - name: Deploy to Server via SSH
         run: |
           # Setup SSH key
