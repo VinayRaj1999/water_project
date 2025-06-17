@@ -29,24 +29,17 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/ground-water:v1
       
-      - name: Check SSH and Docker secrets
-        run: |
-          if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then echo "Error: DOCKER_USERNAME is empty"; exit 1; fi
-          if [ -z "${{ secrets.DOCKER_PASSWORD }}" ]; then echo "Error: DOCKER_PASSWORD is empty"; exit 1; fi
-          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then echo "Error: SSH_PRIVATE_KEY is empty"; exit 1; fi
-          if [ -z "${{ secrets.SERVER_USERNAME }}" ]; then echo "Error: SERVER_USERNAME is empty"; exit 1; fi
-          if [ -z "${{ secrets.SERVER_IP }}" ]; then echo "Error: SERVER_IP is empty"; exit 1; fi
-          if [ -z "${{ secrets.SERVER_PORT }}" ]; then echo "Error: SERVER_PORT is empty"; exit 1; fi
-          echo "All secrets are set"
-      
       - name: Deploy to Server via SSH
         run: |
           # Setup SSH key
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/ssh_private_key
           chmod 600 /tmp/ssh_private_key
 
+          # Test SSH key file
+          if [ ! -s /tmp/ssh_private_key ]; then echo "Error: SSH private key file is empty"; exit 1; fi
+
           # Deploy using SSH
-          ssh -v -o StrictHostKeyChecking=no -i /tmp/ssh_private_key -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }} /bin/bash << 'EOF' > ssh_output.log 2>&1
+          ssh -v -o StrictHostKeyChecking=no -i /tmp/ssh_private_key -p "${{ secrets.SERVER_PORT }}" "${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }}" /bin/bash << 'EOF' > ssh_output.log 2>&1
             # Log in to Docker Hub
             docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
 
@@ -57,14 +50,14 @@ jobs:
             fi
 
             # Pull the latest Docker image
-            docker pull ${{ secrets.DOCKER_USERNAME }}/ground-water:v1
+            docker pull "${{ secrets.DOCKER_USERNAME }}/ground-water:v1"
 
             # Run the container
             docker run -d \
               --restart=unless-stopped \
               --name vinay-proj \
               -p 8080:8080 \
-              ${{ secrets.DOCKER_USERNAME }}/ground-water:v1
+              "${{ secrets.DOCKER_USERNAME }}/ground-water:v1"
           EOF
           cat ssh_output.log
 
