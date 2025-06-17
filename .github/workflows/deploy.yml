@@ -36,7 +36,7 @@ jobs:
           chmod 600 /tmp/ssh_private_key
 
           # Deploy using SSH
-          ssh -v -o StrictHostKeyChecking=no -i /tmp/ssh_private_key -p ${{ secrets.SERVER_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} /bin/bash << 'EOF' > ssh_output.log 2>&1
+          ssh -v -o StrictHostKeyChecking=no -i /tmp/ssh_private_key -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }} /bin/bash << 'EOF' > ssh_output.log 2>&1
             # Log in to Docker Hub
             docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
 
