@@ -15,20 +15,6 @@ library(tidyr)
 library(rmarkdown)
 library(shinycssloaders)
 
-# Sample Data
-get_sample_data <- function() {
-  tibble(
-    LOCATION_NAME = sample(c("Karnataka", "Tamil Nadu", "Maharashtra", "Kerala", "Andhra Pradesh", "Gujarat", "Punjab", "West Bengal", "Odisha", "Bihar"), 20, replace = TRUE),
-    CA = runif(20, 20, 100),
-    MG = runif(20, 10, 50),
-    Sodium = runif(20, 30, 150),
-    K = runif(20, 2, 10),
-    CHLORIDE = runif(20, 50, 250),
-    SULPHATE = runif(20, 40, 200),
-    BICARBONATE = runif(20, 80, 300)
-  )
-}
-
 # UI
 ui <- dashboardPage(
   title = "Ground Water Assessment Dashboard",
@@ -37,47 +23,36 @@ ui <- dashboardPage(
   dashboardHeader(
     title = tags$div(
       style = "display: flex; align-items: center; height: 60px;",
-      tags$span("🌊 Ground Water Assessment", style = "font-size: 18px; font-weight: bold; color: white;")
+      tags$span("\uD83C\uDF0A Ground Water Assessment", style = "font-size: 18px; font-weight: bold; color: white;")
     ),
     titleWidth = 300
-  ),
+  ), 
   
   dashboardSidebar(
     width = 250,
     sidebarMenu(
-      menuItem("📁 File Upload", tabName = "upload", icon = icon("upload")),
-      menuItem("📊 Data Exploration", tabName = "data_explore", icon = icon("chart-bar")),
-      menuItem("💧 Chemistry Analysis", tabName = "chemistry", icon = icon("flask"))
+      menuItem("\uD83D\uDCC1 File Upload", tabName = "upload", icon = icon("upload")),
+      menuItem("\uD83D\uDCCA Data Exploration", tabName = "data_explore", icon = icon("chart-bar")),
+      menuItem("\uD83D\uDCA7 Chemistry Analysis", tabName = "chemistry", icon = icon("flask"))
     )
   ),
   
   dashboardBody(
     tags$head(
-      tags$style(HTML("
-        .box { border-radius: 10px; box-shadow: 0 1px 5px rgba(0,0,0,0.1); }
-        .content-wrapper { background-color: #f8f9fa; }
-        .main-sidebar { background-color: #1e3d59; }
-        .skin-blue .sidebar a { color: #ffffff; }
-        .skin-blue .sidebar-menu>li.active>a {
-          background-color: #1e90ff; color: white;
-          font-weight: bold;
-        }
-        .form-control, .selectpicker {
-          border-radius: 8px !important;
-        }
-        .box-title {
-          font-weight: bold;
-          color: #1e3d59;
-        }
-      "))
+      tags$style(HTML(".box { border-radius: 10px; box-shadow: 0 1px 5px rgba(0,0,0,0.1); }
+                      .content-wrapper { background-color: #f8f9fa; }
+                      .main-sidebar { background-color: #1e3d59; }
+                      .skin-blue .sidebar a { color: #ffffff; }
+                      .skin-blue .sidebar-menu>li.active>a { background-color: #1e90ff; color: white; font-weight: bold; }
+                      .form-control, .selectpicker { border-radius: 8px !important; }
+                      .box-title { font-weight: bold; color: #1e3d59; }"))
     ),
     
     tabItems(
-      # File Upload Tab
       tabItem(tabName = "upload",
               fluidRow(
                 box(width = 6, title = "Upload Groundwater Data", status = "primary", solidHeader = TRUE,
-                    fileInput("gpkg_upload", "Choose GPKG File", accept = c(".gpkg")),
+                    fileInput("csv_upload", "Choose CSV File", accept = ".csv"),
                     actionButton("load_data", "Load Data", icon = icon("sync"))
                 ),
                 box(width = 6, title = "File Info", status = "info", solidHeader = TRUE,
@@ -85,7 +60,6 @@ ui <- dashboardPage(
               )
       ),
       
-      # Data Exploration Tab
       tabItem(tabName = "data_explore",
               fluidRow(
                 box(width = 6, title = "Dataset Overview", status = "primary", solidHeader = TRUE, uiOutput("dataset_summary")),
@@ -97,10 +71,9 @@ ui <- dashboardPage(
               )
       ),
       
-      # Chemistry Tab
       tabItem(tabName = "chemistry",
               fluidRow(
-                box(width = 4, title = "📍 Select Location(s)", status = "primary", solidHeader = TRUE,
+                box(width = 4, title = "\uD83D\uDCCD Select Location(s)", status = "primary", solidHeader = TRUE,
                     pickerInput("location_filter", label = "Location(s)",
                                 choices = NULL, multiple = TRUE,
                                 options = list(
@@ -120,12 +93,13 @@ ui <- dashboardPage(
 
 # Server
 server <- function(input, output, session) {
-  data_storage <- reactiveValues(csv_data = get_sample_data(), data_loaded = FALSE)
+  data_storage <- reactiveValues(csv_data = NULL)
   
   observeEvent(input$load_data, {
-    req(input$gpkg_upload)
+    req(input$csv_upload)
     tryCatch({
-      showNotification("Custom GPKG upload not yet handled in this version", type = "warning")
+      data_storage$csv_data <- read_csv(input$csv_upload$datapath)
+      showNotification("Data loaded successfully!", type = "message")
     }, error = function(e) {
       showNotification(paste("Error processing file:", e$message), type = "error")
     })
@@ -133,7 +107,7 @@ server <- function(input, output, session) {
   
   output$file_info <- renderPrint({
     req(data_storage$csv_data)
-    cat("File or Sample Data Loaded\n",
+    cat("File Loaded Successfully\n",
         "Number of Rows:", nrow(data_storage$csv_data), "\n",
         "Number of Columns:", ncol(data_storage$csv_data))
   })
@@ -173,15 +147,13 @@ server <- function(input, output, session) {
     } else HTML("<p>No numeric columns found.</p>")
   })
   
-  # Update Location Filter
   observe({
-    df <- data_storage$csv_data
+    req(data_storage$csv_data)
     updatePickerInput(session, "location_filter",
-                      choices = unique(df$LOCATION_NAME),
-                      selected = unique(df$LOCATION_NAME))
+                      choices = unique(data_storage$csv_data$LOCATION_NAME),
+                      selected = unique(data_storage$csv_data$LOCATION_NAME))
   })
   
-  # Piper Plot
   output$piper_plot <- renderPlot({
     req(data_storage$csv_data)
     df <- data_storage$csv_data
